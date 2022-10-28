@@ -1,24 +1,27 @@
-import logo from './logo.svg';
-import './App.css';
+import "./App.css";
+import Button from "@mui/material/Button";
+
+import Sidebar1 from "./Sidebar1";
+import { CssBaseline } from "@mui/material";
+import Grid from "@mui/material/Grid";
+import Box from "@mui/material/Box";
+
+import { Route, Routes } from "react-router-dom";
+import Login from "./Login";
+import Main from "./Main";
+import AuthProvider from "./Context/AuthProvider";
+import RoomProvider  from "./Context/RoomProvider";
 
 function App() {
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+    <AuthProvider>  
+      <RoomProvider>
+    <Routes>
+      <Route path="/" element={<Main />} />
+      <Route path="/login" element={<Login />} />
+    </Routes>
+    </RoomProvider>
+    </AuthProvider>
   );
 }
 
