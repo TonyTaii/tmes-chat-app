@@ -58,14 +58,14 @@ const formatDate = (seconds) => {
       onSnapshot(queryMess, (qdoc) => {
         
         qdoc.forEach((doc) => {
-console.log(doc.data())
+
           setLastMess(doc.data());
         });
         
       });
     }
-  }, [documentOneOnOne]);
-console.log(documentOneOnOne)
+  }, []);
+
   return (
     <>
       <div
@@ -162,7 +162,7 @@ const PerGroup = (props) => {
         
       });
     }
-  }, []);
+  }, [props.id]);
 
 
 

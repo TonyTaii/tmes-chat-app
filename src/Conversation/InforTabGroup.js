@@ -33,6 +33,7 @@ const InforTabGroup = () => {
   const [listAvatarGroup,setListAvatarGroup]=useState([])
   const {selectedRoom,setIsVisibleAddPeopleToRoom} = useContext(RoomContext)
   useEffect(() => {
+    if(typeof(selectedRoom.members)!== 'undefined'){
     const queryRoomToShow = query(
       collection(db, "user"),
       // orderBy("createdAt","desc"),
@@ -45,7 +46,7 @@ const InforTabGroup = () => {
         temp.push(doc.data());
       });
       setListAvatarGroup(temp);
-    });
+    });}
   }, [selectedRoom]);
 
 
