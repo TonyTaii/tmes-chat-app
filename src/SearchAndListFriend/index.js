@@ -24,18 +24,52 @@ import {
   query,
   orderBy,
   where,
+  limit
 } from "firebase/firestore";
 import { db } from "../firebase/config.js";
 import { AuthContext } from "../Context/AuthProvider";
 import { RoomContext } from "../Context/RoomProvider";
 import ModalGroupAdd from "../ModalGroupAdd";
 import ModalAddPeopleToGroup from "../ModalAddPeopleToGroup";
+import ModalAddFriend from "../ModalAddFriend";
+import formatRelative from "date-fns/formatRelative";
 
 const PerFriend = (props) => {
-  
+  const { documentOneOnOne } = useContext(RoomContext);
+const [lastMess,setLastMess]=useState({})
+const formatDate = (seconds) => {
+  let formatedDate = "";
+  if (seconds) {
+    formatedDate = formatRelative(new Date(seconds * 1000), new Date());
+    formatedDate =
+      formatedDate.charAt(0).toUpperCase() + formatedDate.slice(1);
+  }
+  return formatedDate;
+};
+  useEffect(() => {
+    if (typeof props.id!== "undefined") {
+      const queryMess = query(
+        collection(db, "messages"),
+        where("messId", "==", props.id),
+        orderBy("createAt","desc"),
+        limit(1)
+      );
+
+      onSnapshot(queryMess, (qdoc) => {
+        
+        qdoc.forEach((doc) => {
+console.log(doc.data())
+          setLastMess(doc.data());
+        });
+        
+      });
+    }
+  }, [documentOneOnOne]);
+console.log(documentOneOnOne)
   return (
-    <> 
-      <div 
+    <>
+      <div
+      onClick={props.onClick}
         style={{
           display: "flex",
           justifyContent: "flex-start",
@@ -47,7 +81,16 @@ const PerFriend = (props) => {
           gap: 10,
         }}
       >
-        {props.onlineOrOffline}
+        <StyledBadgeOnline
+          overlap="circular"
+          anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
+          variant="dot"
+        >
+          <Avatar
+            src={props.avatar}
+            style={{ height: 40, width: 40, marginLeft: 10 }}
+          />
+        </StyledBadgeOnline>
 
         <div
           style={{
@@ -58,14 +101,14 @@ const PerFriend = (props) => {
           }}
         >
           <Typography variant="h6 " margin={0} p={0} fontSize={"15px"}>
-            Swathi
+            {props.name}
           </Typography>
           <span style={{ fontSize: 10, color: "#4D4D4D" }}>
-            Tra tien tao day!!
+          {lastMess.url? "[[Picture]]" :lastMess.text}
           </span>
         </div>
         <span style={{ fontSize: 10, color: "#4D4D4D", marginBottom: "-20px" }}>
-          Today, 8:56pm
+        {formatDate(lastMess.createAt?.seconds)}
         </span>
       </div>
       <Divider variant="middle" />
@@ -73,34 +116,65 @@ const PerFriend = (props) => {
   );
 };
 const PerGroup = (props) => {
-  const {documentRoom}=useContext(RoomContext)
-  const [listAvatar,setListAvatar]= useState([])
-   
-  useEffect(()=>{
+  const { documentRoom } = useContext(RoomContext);
+  const [listAvatar, setListAvatar] = useState([]);
+  const [lastMess,setLastMess]=useState({})
+  const formatDate = (seconds) => {
+    let formatedDate = "";
+    if (seconds) {
+      formatedDate = formatRelative(new Date(seconds * 1000), new Date());
+      formatedDate =
+        formatedDate.charAt(0).toUpperCase() + formatedDate.slice(1);
+    }
+    return formatedDate;
+  };
+  useEffect(() => {
     const queryRoomToShow = query(
       collection(db, "user"),
       // orderBy("createdAt","desc"),
-      where("uid", "in", (props.item).members)
-    )
-    
+      where("uid", "in", props.item.members)
+    );
+
     onSnapshot(queryRoomToShow, (qdoc) => {
-      
-      const temp=[]
+      const temp = [];
       qdoc.forEach((doc) => {
-        
         temp.push(doc.data().avatar);
-       
-       
-       
       });
       setListAvatar(temp);
     });
+  }, [documentRoom]);
+
+  useEffect(() => {
+    if (typeof props.id!== "undefined") {
+      const queryMess = query(
+        collection(db, "messages"),
+        where("messId", "==", props.id),
+        orderBy("createAt","desc"),
+        limit(1)
+      );
+
+      onSnapshot(queryMess, (qdoc) => {
+        
+        qdoc.forEach((doc) => {
+
+          setLastMess(doc.data());
+        });
+        
+      });
+    }
+  }, []);
 
 
-  },[documentRoom])
+
+
+
+
+  
   return (
     <>
-      <div  className='hoverPerGroup' onClick={props.onClick}
+      <div
+        className="hoverPerGroup"
+        onClick={props.onClick}
         style={{
           display: "flex",
           justifyContent: "flex-start",
@@ -110,8 +184,6 @@ const PerGroup = (props) => {
           height: 50,
           // backgroundColor: "green",
           gap: 10,
-          
-          
         }}
       >
         <AvatarGroup
@@ -126,26 +198,33 @@ const PerGroup = (props) => {
 
             flexWrap: "wrap",
             marginLeft: "12px",
-            "& .MuiAvatar-root": { width:17, height: 17, fontSize: 10 },
+            "& .MuiAvatar-root": { width: 17, height: 17, fontSize: 10 },
           }}
         >
-          {listAvatar.map((item)=>
-            
-            <Tooltip key={Math.random()*10000} title={(props.item).fullname} placement="bottom" arrow>
-              <Avatar  src={item}/>
+          {listAvatar.map((item,i) => (
+            <Tooltip
+              key={i}
+              title={props.item.fullname}
+              placement="bottom"
+              arrow
+            >
+              <Avatar src={item} />
             </Tooltip>
-            )}
+          ))}
         </AvatarGroup>
         <div
-          style={{ display: "flex", flexDirection: "column", heigth: "100%" }}
+          style={{ display: "flex", flexDirection: "column", heigth: "100%",width:'70%' }}
         >
           <Typography variant="h6 " margin={0} p={0} fontSize={"15px"}>
-           { props.nameGroup}
+            {props.nameGroup}
           </Typography>
           <span style={{ fontSize: 10, color: "#4D4D4D" }}>
-            Hi Guys, Wassup!
+           {lastMess.url? "[[Picture]]" :lastMess.text}
           </span>
         </div>
+        <span style={{ fontSize: 10, color: "#4D4D4D", marginBottom: "-20px"  }}>
+         {formatDate(lastMess.createAt?.seconds)}
+        </span>
       </div>
       <Divider variant="middle" />
     </>
@@ -199,15 +278,7 @@ const StyledBadgeOffline = styled(Badge)(({ theme }) => ({
     },
   },
 }));
-const propsStyleBadgeOnline = (
-  <StyledBadgeOnline
-    overlap="circular"
-    anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
-    variant="dot"
-  >
-    <Avatar style={{ height: 40, width: 40, marginLeft: 10 }} />
-  </StyledBadgeOnline>
-);
+
 const propsStyleBadgeOffline = (
   <StyledBadgeOffline
     overlap="circular"
@@ -219,28 +290,42 @@ const propsStyleBadgeOffline = (
 );
 
 export default function SearchAndListFriend() {
- const {documentRoom} =useContext(RoomContext)
- const {isVisibleAddRoom,setIsVisibleAddRoom}= useContext(RoomContext)
- const {selectedRoomId,setSelectedRoomId,isGroup,setIsGroup} =useContext(RoomContext)
- const handleOpenAddGroup = () => setIsVisibleAddRoom(true);
+  const { documentRoom } = useContext(RoomContext);
+  const {
+ 
+    setIsVisibleAddRoom,
+    setIsVisibleAddFriend,
+   
+    selectedOneOnOneId,setSelectedOneOnOneId
+  } = useContext(RoomContext);
+  const { oppositeInfor,isOneOnOne,setIsOneOnOne,selectedRoomId, setSelectedRoomId, isGroup, setIsGroup,documentOneOnOne} =
+    useContext(RoomContext);
+  const handleOpenAddGroup = () => setIsVisibleAddRoom(true);
+  const handleShowAddFriend = () => setIsVisibleAddFriend(true);
+  const { currentUserSv} = useContext(AuthContext);
+
+ 
+
+
   
+
   return (
-    
     <div
       style={{
         width: "100%",
         minWidth: 400,
-        height: "95vh",
+        height: "98vh",
         display: "flex",
-        justifyContent: "space-between",
+        justifyContent:'space-around',
         flexDirection: "column",
         alignItems: "center",
+        position:'relative',
+      
       }}
     >
-      <ModalGroupAdd/>
-      <ModalAddPeopleToGroup/>
+     
       {/* Search bar */}
-      <Paper
+      {/* <Paper
         component="form"
         sx={{
           p: "1px 4px",
@@ -259,12 +344,12 @@ export default function SearchAndListFriend() {
         <MoreVertIcon
           style={{ paddingRight: 10, fontSize: 30, color: "#1A66FF" }}
         />
-      </Paper>
+      </Paper> */}
       {/* Group */}
       <div
         style={{
           width: "100%",
-          height: "20%",
+          height: "25%",
           display: "flex",
           justifyContent: "flex-start",
           flexDirection: "column",
@@ -284,28 +369,32 @@ export default function SearchAndListFriend() {
           }}
         >
           <span>Groups</span>
-          <Tooltip title="Create Group" placement="top-end" arrow >
+          <Tooltip title="Create Group" placement="top-end" arrow>
             <IconButton onClick={handleOpenAddGroup}>
               <GroupAddOutlinedIcon sx={{ height: 20, width: 20 }} />
             </IconButton>
           </Tooltip>
         </div>
         <div style={{ overflowY: "scroll", height: "73%" }}>
-          
-         {documentRoom.map((rom)=>
-         <PerGroup onClick={()=>{setSelectedRoomId(rom.roomId)
-        setIsGroup(true)
-        }} key={rom.roomId} nameGroup={rom.nameGroup} item={rom} />
-
-         )
-
-         }
+          {documentRoom.map((rom,i) => (
+            <PerGroup
+            id={rom.id}
+              onClick={() => {
+                setSelectedRoomId(rom.roomId);
+                setIsOneOnOne(false)
+                setIsGroup(true);
+              }}
+              key={i}
+              nameGroup={rom.nameGroup}
+              item={rom}
+            />
+          ))}
         </div>
       </div>
 
       {/* `````````````````````````````Friend````````````````````````````` */}
 
-      <div 
+      <div
         style={{
           width: "100%",
           height: "70%",
@@ -329,28 +418,35 @@ export default function SearchAndListFriend() {
         >
           <span>Friends</span>
           <Tooltip title="Add Friend" placement="top-end" arrow>
-            <IconButton>
+            <IconButton onClick={handleShowAddFriend}>
               <PersonAddAltOutlinedIcon sx={{ height: 20, width: 20 }} />
             </IconButton>
           </Tooltip>
         </div>
         {/* Friend item */}
         <div style={{ overflowY: "scroll", height: "90%" }}>
-          <PerFriend onlineOrOffline={propsStyleBadgeOnline} />
-          <PerFriend onlineOrOffline={propsStyleBadgeOffline} />
-          <PerFriend onlineOrOffline={propsStyleBadgeOffline} />
-          <PerFriend onlineOrOffline={propsStyleBadgeOnline} />
-          <PerFriend onlineOrOffline={propsStyleBadgeOffline} />
-          <PerFriend onlineOrOffline={propsStyleBadgeOffline} />
-          <PerFriend onlineOrOffline={propsStyleBadgeOnline} />
-          <PerFriend onlineOrOffline={propsStyleBadgeOffline} />
-          <PerFriend onlineOrOffline={propsStyleBadgeOffline} />
-          <PerFriend onlineOrOffline={propsStyleBadgeOnline} />
-          <PerFriend onlineOrOffline={propsStyleBadgeOffline} />
-          <PerFriend onlineOrOffline={propsStyleBadgeOffline} />
+          {documentOneOnOne.map((item) => (
+            <PerFriend 
+            id={item.id}
+            onClick={()=>{
+setSelectedOneOnOneId(item.id)  
+setIsGroup(false)           
+setIsOneOnOne(true)
+
+
+            }}
+              key={item.id}
+              name={item.fullnamePerOne[0]===currentUserSv.fullname?item.fullnamePerOne[1]:item.fullnamePerOne[0]}
+              avatar={item.avatar[0]===currentUserSv.avatar?item.avatar[1]:item.avatar[0]}
+            />
+          ))}
         </div>
         {/*  End Friend item */}
+        <ModalGroupAdd />
+      <ModalAddPeopleToGroup />
+      <ModalAddFriend />  
       </div>
+      
     </div>
   );
 }

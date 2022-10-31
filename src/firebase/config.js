@@ -2,7 +2,7 @@ import { initializeApp } from "firebase/app";
 import { connectFirestoreEmulator, getFirestore} from "firebase/firestore";
 import { useEffect } from "react";
 import { connectAuthEmulator, getAuth } from "firebase/auth";
-
+import { getStorage,connectStorageEmulator  } from "firebase/storage";
 
 // Your web app's Firebase configuration
 const firebaseConfig = {
@@ -16,25 +16,14 @@ const firebaseConfig = {
 
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
-
+const storage = getStorage(app);
 const db = getFirestore(app);
 const auth =getAuth(app)
 
-// const docRef = doc(db, "user", "B3wxR7QLXB84uGZSKKsM");
 
-// async function dbUser() {
-//   const docSnap = await getDoc(docRef);
-//   if (docSnap.exists()) {
-//     console.log("Document data:", docSnap.data());
-//   } else {
-//     // doc.data() will be undefined in this case
-//     console.log("No such document!");
-//   }
-// }
-
-// dbUser();
 connectFirestoreEmulator(db, '127.0.0.1', 8080);
 connectAuthEmulator(auth, 'http://127.0.0.1:9099' );
+connectStorageEmulator(storage, '127.0.0.1', 9199)
 
-export { app,db};
+export { app,db,storage};
 export default auth

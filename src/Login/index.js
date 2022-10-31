@@ -20,7 +20,13 @@ import { app, db } from "../firebase/config";
 import { Navigate, useNavigate } from "react-router-dom";
 import background from "../Login/17545.jpg";
 import auth from "../firebase/config.js";
-import { addDoc, collection,onSnapshot,doc } from "firebase/firestore";
+import {
+  addDoc,
+  collection,
+  onSnapshot,
+  doc,
+  updateDoc,
+} from "firebase/firestore";
 import { AuthContext } from "../Context/AuthProvider";
 import addDocument, { generateKeywords } from "../hook/addDocument";
 
@@ -49,13 +55,6 @@ function Copyright(props) {
 const theme = createTheme();
 
 export default function Login() {
-  
-
-
-
-
-
-
   //Function onlcick Sign in by FB
   const handleClickSignFB = (e) => {
     e.preventDefault();
@@ -63,40 +62,51 @@ export default function Login() {
     signInWithPopup(auth, providerFB).then((result) => {
       const dataUser = result.user;
       const additionalUserInfor = getAdditionalUserInfo(result);
-
       if (additionalUserInfor.isNewUser) {
-        addDocument("user", {
-          fullname: dataUser.displayName,
-          avatar: dataUser.photoURL,
-          email: dataUser.email,
-          uid: dataUser.uid,
-          providerID: additionalUserInfor.providerId,
-          keyword: generateKeywords(dataUser.displayName.toLowerCase())
-        });
+        const b = async () => {
+          const a = await addDoc(collection(db, "user"), {
+            fullname: dataUser.displayName,
+            avatar: dataUser.photoURL,
+            email: dataUser.email,
+            uid: dataUser.uid,
+            providerID: additionalUserInfor.providerId,
+            keyword: generateKeywords(dataUser.displayName.toLowerCase()),
+            friend: [],
+          });
+          await updateDoc(doc(db, "user", a.id), {
+            id: a.id,
+          });
+        };
+        b()
       }
     });
   };
+
   //Function onclik Sign in by GG
   const handleClickSignGG = (e) => {
     e.preventDefault();
-    signInWithPopup(auth, providerGG)
-      .then((result) => {
-        // This gives you a Google Access Token. You can use it to access the Google API.
-        const credentialGG = GoogleAuthProvider.credentialFromResult(result);
-        const tokenGG = credentialGG.accessToken;
-        // The signed-in user info.
-        const userGG = result.user;
-      })
-      .catch((error) => {
-        // Handle Errors here.
-        const errorCode = error.code;
-        const errorMessage = error.message;
-        // The email of the user's account used.
-        const email = error.customData.email;
-        // The AuthCredential type that was used.
-        const credential = GoogleAuthProvider.credentialFromError(error);
-        // ...
-      });
+
+    signInWithPopup(auth, providerGG).then((result) => {
+      const dataUser = result.user;
+      const additionalUserInfor = getAdditionalUserInfo(result);
+      if (additionalUserInfor.isNewUser) {
+        const b = async () => {
+          const a = await addDoc(collection(db, "user"), {
+            fullname: dataUser.displayName,
+            avatar: dataUser.photoURL,
+            email: dataUser.email,
+            uid: dataUser.uid,
+            providerID: additionalUserInfor.providerId,
+            keyword: generateKeywords(dataUser.displayName.toLowerCase()),
+            friend: [],
+          });
+          await updateDoc(doc(db, "user", a.id), {
+            id: a.id,
+          });
+        };
+        b()
+      }
+    });
   };
   return (
     <div>

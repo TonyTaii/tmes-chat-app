@@ -16,15 +16,41 @@ import Tooltip from "@mui/material/Tooltip";
 import "../Conversation/style.css";
 import { RoomContext } from "../Context/RoomProvider";
 import PersonAddAlt1OutlinedIcon from '@mui/icons-material/PersonAddAlt1Outlined';
-
+import {
+  collection,
+  query,
+  where,
+  onSnapshot,
+  orderBy,
+} from "firebase/firestore";
+import { db } from "../firebase/config";
 
 
 
 
 
 const InforTabGroup = () => {
-    const {selectedRoom,listAvatarSelectedGroup,setIsVisibleAddPeopleToRoom} = useContext(RoomContext);
-   
+  const [listAvatarGroup,setListAvatarGroup]=useState([])
+  const {selectedRoom,setIsVisibleAddPeopleToRoom} = useContext(RoomContext)
+  useEffect(() => {
+    const queryRoomToShow = query(
+      collection(db, "user"),
+      // orderBy("createdAt","desc"),
+      where("uid", "in", selectedRoom.members)
+    );
+
+    onSnapshot(queryRoomToShow, (qdoc) => {
+      const temp = [];
+      qdoc.forEach((doc) => {
+        temp.push(doc.data());
+      });
+      setListAvatarGroup(temp);
+    });
+  }, [selectedRoom]);
+
+
+  
+    
     return (
       <div style={{ width: "100%" }}>
         <div
@@ -57,40 +83,33 @@ const InforTabGroup = () => {
               fontSize={"24px"}
               fontWeight={600}
             >
-              {typeof(selectedRoom)!= undefined ? selectedRoom.nameGroup : 'Something was wrong'
+              {typeof(selectedRoom)!== 'undefined' ? selectedRoom.nameGroup : 'Something was wrong'
               }
             </Typography>
             <span style={{ fontSize: 15, color: "#4D4D4D" }}>Online</span>
           </div>
-          <StyledBadgeOnline
-            overlap="circular"
-            anchorOrigin={{ vertical: "bottom", horizontal: "left" }}
-            variant="dot"
-          >
+        
             <AvatarGroup
               spacing={2}
-              // total={6}
+              
               max={4}
               sx={{
-                // heigth: 70,
+                
                 width: 150,
-                // display: "flex",
-                // justifyContent: "space-between",
-                // flexWrap: "wrap",
-                // marginLeft: "12px",
+              
                 "& .MuiAvatar-root": { width: 40, height: 40, fontSize: 20 },
               }}
             >
-              {listAvatarSelectedGroup.map((item)=>
+              {listAvatarGroup.map((item,i)=>
               
-              <Tooltip key={item.uid} title={item.fullname} placement="bottom" arrow>
+              <Tooltip key={i} title={item.fullname} placement="bottom" arrow>
                 <Avatar  src={item.avatar}/>
               </Tooltip>
               )}
               
               
             </AvatarGroup>
-          </StyledBadgeOnline>
+         
           <div style={{ marginLeft: 30, width: 100 }}>
             <IconButton onClick={()=>setIsVisibleAddPeopleToRoom(true)}>
               <PersonAddAlt1OutlinedIcon

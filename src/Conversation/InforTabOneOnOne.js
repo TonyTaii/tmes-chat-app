@@ -15,9 +15,24 @@ import Picker from "@emoji-mart/react";
 import Tooltip from "@mui/material/Tooltip";
 import "../Conversation/style.css";
 import { RoomContext } from "../Context/RoomProvider";
-
+import {
+  collection,
+  query,
+  where,
+  onSnapshot,
+  orderBy,
+} from "firebase/firestore";
+import { db } from "../firebase/config";
+import { AuthContext } from "../Context/AuthProvider";
 
 const InforTabOneOnONe = () => {
+  const {currentUserSv}=useContext(AuthContext)
+  // const {selectedOneOnOneId,oppositeInfor}=useContext(RoomContext)
+ const {avatar,name,id} =useContext(RoomContext)
+ 
+
+
+
     return (
       <div style={{ width: "100%" }}>
         <div
@@ -38,7 +53,10 @@ const InforTabOneOnONe = () => {
             variant="dot"
           >
             <Avatar
+
+             src={avatar[0]===currentUserSv.avatar? avatar[1]:avatar[0]}
               style={{
+               
                 height: 70,
                 width: 70,
                 marginLeft: 20,
@@ -62,7 +80,7 @@ const InforTabOneOnONe = () => {
               fontSize={"24px"}
               fontWeight={600}
             >
-              Nguyen Thanh Tai
+             {name[0]===currentUserSv.fullname? name[1]:name[0]}
             </Typography>
             <span style={{ fontSize: 15, color: "#4D4D4D" }}>Online</span>
           </div>

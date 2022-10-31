@@ -16,8 +16,9 @@ import WelcomeTab from "../Conversation/WelcomeTab";
 function Main() {
   return (<>
     <CssBaseline/>
-    <div style={{backgroundColor:'#EAEAEA', height:'100vh',minWidth:1500,minHeight:800, width:'100vw',fontFamily:'Poppins',display:'flex',justifyContent:'center',alignItems:'center'}}>
-    <Grid container spacing={3} columns={15}>
+    <div style={{backgroundColor:'#EAEAEA', height:'100vh',minWidth:1500,minHeight:800, width:'100vw',fontFamily:'Poppins'}}>
+    
+    <Grid container spacing={3} columns={15} alignItems="center">
   <Grid item xs={1}>
 <Sidebar1/>
     </Grid>

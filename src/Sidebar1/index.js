@@ -17,12 +17,13 @@ import { signOut } from "firebase/auth";
 import { useNavigate } from "react-router-dom";
 import { useContext, useState } from "react";
 import { AuthContext } from "../Context/AuthProvider";
+import { RoomContext } from "../Context/RoomProvider";
 
 
 
 const Sidebar1 = () => {
  const {currentUserSv} = useContext(AuthContext)
-
+const {setIsGroup,setIsOneOnOne}=useContext(RoomContext)
   const [isActive,setIsActive]=useState(false)
   const onClickHandle=(e)=>{
     e.preventDefault()
@@ -32,6 +33,8 @@ setIsActive(!isActive)
   //Sign Out handle click function
   const signOutHandleClick=(e)=>{
     e.preventDefault();
+    setIsGroup(false)
+    setIsOneOnOne(false)
     signOut(auth).then(()=>{
       navigate('/login')
     })
@@ -58,17 +61,26 @@ setIsActive(!isActive)
           marginBottom:20,
           filter: "drop-shadow(0px 0px 20px rgba(0, 0, 0, 0.5))",
         }}/>
+      <Tooltip
+              
+              title={currentUserSv.fullname}
+              placement="right"
+              arrow
+            >
       <Avatar
       src={currentUserSv.avatar}
         style={{
-          width: 50,
-          height: 50,
+          width: 55,
+          height: 55,
           marginTop: 10,
           marginLeft:5,
           
           filter: "drop-shadow(0px 0px 20px rgba(0, 0, 0, 0.5))",
         }}
-      /></div>
+        
+      />
+    </Tooltip>
+      </div>
       <div
         style={{
           display: "flex",
@@ -78,7 +90,7 @@ setIsActive(!isActive)
           width:'100%'
         }}
       >
-       
+      
         <IconButton style={ isActive? {
             backgroundColor: "#EAEAEA",
             border: "1.5px solid rgba(0, 0, 0, 0.25)",

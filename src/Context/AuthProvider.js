@@ -1,5 +1,5 @@
 import { CircularProgress } from "@mui/material";
-import { getAdditionalUserInfo, onAuthStateChanged } from "firebase/auth";
+import { getAdditionalUserInfo, onAuthStateChanged, OperationType } from "firebase/auth";
 import { createContext, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import auth from "../firebase/config.js";
@@ -9,6 +9,7 @@ import {
   where,
   getDocs,
   QuerySnapshot,
+  connectFirestoreEmulator,
 } from "firebase/firestore";
 import { async } from "@firebase/util";
 import { db } from "../firebase/config.js";
@@ -39,31 +40,35 @@ export default function AuthProvider({ children }) {
           const getUserCurrentInfoFromSever = await getDocs(
             qUserCurrentInforFromeSever
           );
-          getUserCurrentInfoFromSever.forEach((doc) =>
-            setCurrentUserSv(doc.data())
+          getUserCurrentInfoFromSever.forEach((doc) =>{
+          localStorage.setItem("user", JSON.stringify(doc.data()));
+            setCurrentUserSv(doc.data())}
           );
       
         }
         ass()
 
         navigate("/");
+
       } else {
         
         navigate("/login");
         setCurrentUserSv({})
+      
       }
     });
     setIsLoading(false);
-    return () => {
-      unsubscibed();
-    };
+    // return () => {
+    //   unsubscibed();
+    // };
   },[]);
-  
- 
-  
+
+
+
+
 
   return (
-    <AuthContext.Provider value={{ currentUserSv }}>
+    <AuthContext.Provider value={{ currentUserSv}}>
       {isLoading ? (
         <div
           style={{
