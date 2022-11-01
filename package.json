@@ -15,7 +15,7 @@
     "antd": "^4.23.6",
     "date-fns": "^2.29.3",
     "emoji-mart": "^5.2.2",
-    "firebase": "^9.12.1",
+    "firebase": "^9.13.0",
     "lodash": "^4.17.21",
     "lodash.debounce": "^4.0.8",
     "react": "^18.2.0",
