@@ -42,7 +42,7 @@ export default function ModalGroupAdd() {
 
   const handleCloseAddGroup = () => setIsVisibleAddRoom(false);
   const handleOnchangeNameGroup=(e)=>{
-setNameGroup(e.target.value)
+setNameGroup(e.target.value);
   }
  
   const handleCreateGroup = async () => {
